@@ -4,6 +4,8 @@ Een gratis milieuspel in pixel art, in je browser. Loop een week lang door je hu
 
 Geïnspireerd op het schoolspel *Thuis in het Milieu* (Malmberg, 1990), maar volledig nieuw gemaakt. Dit project is onafhankelijk en niet gelieerd aan Malmberg, Redline Software Design of de makers van het originele spel.
 
+Gemaakt door Harold, met hulp van Claude (Anthropic).
+
 **Speel het:** https://haaarold.github.io/Huize-Zuinig/
 
 ## Over het spel
