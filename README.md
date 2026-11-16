@@ -44,7 +44,7 @@ Open daarna http://localhost:8000.
 
 1. Zet de bestanden in een repository met de naam `Huize-Zuinig`.
 2. Ga naar **Settings > Pages**, kies **Deploy from a branch** en dan `main` en `/ (root)`.
-3. Na een minuut staat de site op `https://<gebruikersnaam>.github.io/huize-zuinig/`.
+3. Na een minuut staat de site op `https://<gebruikersnaam>.github.io/Huize-Zuinig/`.
 
 Gebruik je een andere naam of een eigen domein? Pas dan de URL aan in `index.html`, `spel/index.html`, `sitemap.xml` en `robots.txt` (zoek op `haaarold.github.io`).
 
