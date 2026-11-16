@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Huize Zuinig – gratis milieuspel, zoals Thuis in het Milieu</title>
+<meta name="description" content="Ken je Thuis in het Milieu van vroeger? Huize Zuinig is het gratis, moderne milieuspel in pixel art: bespaar energie, scheid afval en win een energielabel.">
+<link rel="canonical" href="https://haaarold.github.io/Huize-Zuinig/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#14263a">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:site_name" content="Huize Zuinig">
+<meta property="og:title" content="Huize Zuinig – gratis milieuspel, zoals Thuis in het Milieu">
+<meta property="og:description" content="Een week lang de baas over energie, water en afval. Gratis in je browser, in pixel art.">
+<meta property="og:url" content="https://haaarold.github.io/Huize-Zuinig/">
+<meta property="og:image" content="https://haaarold.github.io/Huize-Zuinig/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pixel-art woonkamer uit het spel Huize Zuinig">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebApplication",
+      "@id":"https://haaarold.github.io/Huize-Zuinig/#spel",
+      "name":"Huize Zuinig",
+      "url":"https://haaarold.github.io/Huize-Zuinig/spel/",
+      "description":"Gratis educatief milieuspel in pixel art. Loop door een huis, scheid afval, bespaar energie en water en verdien een energielabel.",
+      "applicationCategory":"GameApplication",
+      "genre":"Educatief spel",
+      "operatingSystem":"Elke moderne browser",
+      "inLanguage":"nl",
+      "isAccessibleForFree":true,
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},
+      "audience":{"@type":"EducationalAudience","educationalRole":"student"},
+      "image":"https://haaarold.github.io/Huize-Zuinig/img/og-image.png",
+      "license":"https://opensource.org/license/mit"
+    },
+    {
+      "@type":"FAQPage",
+      "mainEntity":[
+        {"@type":"Question","name":"Is Huize Zuinig hetzelfde als Thuis in het Milieu?","acceptedAnswer":{"@type":"Answer","text":"Nee. Thuis in het Milieu is een educatief spel van Malmberg uit 1990. Huize Zuinig is een nieuw, onafhankelijk spel dat dezelfde ervaring wil geven: een huis, dagelijkse klusjes en vragen over wat het beste is voor het milieu. Het is niet gelieerd aan Malmberg of aan de makers van het originele spel."}},
+        {"@type":"Question","name":"Kan ik Thuis in het Milieu nog spelen?","acceptedAnswer":{"@type":"Answer","text":"Ja. Het Internet Archive heeft het originele spel online speelbaar gemaakt in een emulator. Je vindt de link op deze pagina."}},
+        {"@type":"Question","name":"Is Huize Zuinig gratis?","acceptedAnswer":{"@type":"Answer","text":"Ja, het spel is gratis, zonder account en zonder advertenties. De broncode is open source onder de MIT-licentie."}},
+        {"@type":"Question","name":"Werkt het op een telefoon, tablet of digibord?","acceptedAnswer":{"@type":"Answer","text":"Ja. Het spel draait in de browser op computers, tablets, telefoons en digiborden. Je hoeft niets te installeren."}},
+        {"@type":"Question","name":"Worden er gegevens van spelers verzameld?","acceptedAnswer":{"@type":"Answer","text":"Nee. Het spel gebruikt geen account, geen cookies en geen statistieken. Je voortgang staat alleen in het geheugen van je browser tijdens het spelen."}},
+        {"@type":"Question","name":"Hoe lang duurt het spel?","acceptedAnswer":{"@type":"Answer","text":"Een speelweek heeft zeven dagen met drie klussen per dag. Een hele week duurt ongeveer 20 tot 30 minuten, en je kunt het ook per dag spelen."}},
+        {"@type":"Question","name":"Kloppen de cijfers over energie, water en afval?","acceptedAnswer":{"@type":"Answer","text":"De adviezen kloppen in grote lijnen, bijvoorbeeld statiegeld, het scheiden van afval en het gebruik van een ledlamp. De getallen in het spel zijn ruwe schattingen om keuzes met elkaar te vergelijken. Het zijn geen meetgegevens."}}
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+:root{
+  /* Layout: smalle kolom met kaarten, pixel-art plaatjes als blikvanger, één vaste lichte wereld. */
+  color-scheme:light;
+  --inkt:#14263a;
+  --inkt-zacht:#4b5d75;
+  --papier:#e9f0ee;
+  --kaart:#ffffff;
+  --lijn:#cfdad7;
+  --tulp:#ffc53d;
+  --blad:#1b8556;
+  --blad-licht:#dff3e8;
+  --display:"Pixelify Sans","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--papier);color:var(--inkt);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-text-size-adjust:100%}
+a{color:var(--inkt);text-decoration-thickness:2px;text-underline-offset:3px}
+a:hover{color:var(--blad)}
+:focus-visible{outline:3px solid var(--inkt);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--tulp);padding:8px 14px;border-radius:6px;font-weight:700;z-index:5}
+.skip:focus{left:8px}
+.wrap{max-width:880px;margin:0 auto;padding:0 18px}
+img{max-width:100%;height:auto;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+
+.top{background:var(--inkt);color:#fff}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}
+.merk{font-family:var(--display);font-weight:700;font-size:22px;color:var(--tulp);text-decoration:none}
+.top nav{display:flex;gap:4px 16px;flex-wrap:wrap;font-size:15px;font-weight:600}
+.top nav a{color:#fff;text-decoration:none;padding:6px 0}
+.top nav a:hover{color:var(--tulp);text-decoration:underline}
+
+.hero{background:var(--inkt);color:#fff;padding:12px 0 44px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:28px;align-items:center}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,8vw,64px);line-height:.95;margin:0 0 14px;color:var(--tulp)}
+.hero p{margin:0 0 18px;color:#dbe5ee;max-width:46ch}
+.hero .lead{font-size:19px;color:#fff}
+.knop{display:inline-block;background:var(--tulp);color:var(--inkt);font-weight:700;font-size:18px;text-decoration:none;padding:15px 24px;border-radius:8px;box-shadow:0 4px 0 #b88a14;min-height:50px}
+.knop:hover{color:var(--inkt);background:#ffd25e}
+.knop:active{transform:translateY(2px);box-shadow:0 2px 0 #b88a14}
+.klein{font-size:14px;color:#aebccc;margin-top:12px}
+.hero img{border-radius:10px;border:4px solid #24384f;width:100%}
+@media (max-width:700px){.hero .wrap{grid-template-columns:1fr}}
+
+section{padding:44px 0 0}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,36px);line-height:1.05;margin:0 0 14px;text-wrap:balance}
+h3{font-size:19px;margin:0 0 4px;line-height:1.25}
+p{margin:0 0 14px;max-width:68ch}
+.stappen{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:s}
+.stappen li{background:var(--kaart);border-radius:10px;padding:16px;counter-increment:s}
+.stappen li::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;background:var(--tulp);border:3px solid var(--inkt);font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:10px}
+.stappen p{margin:0;font-size:16px}
+.raster{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kaart{background:var(--kaart);border-radius:10px;padding:16px}
+.kaart p{margin:0;font-size:16px}
+.galerij{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.galerij figure{margin:0;background:var(--kaart);border-radius:10px;overflow:hidden}
+.galerij figcaption{padding:10px 14px;font-weight:600;font-size:15px}
+@media (max-width:700px){.stappen,.raster{grid-template-columns:1fr}}
+@media (max-width:420px){.galerij{grid-template-columns:1fr}}
+
+.klas{background:var(--blad-licht);border-radius:14px;padding:22px}
+.klas ul{margin:0 0 14px;padding-left:20px}
+.klas li{margin-bottom:6px}
+.tijdlijn{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
+.tijdlijn li{background:var(--kaart);border-radius:8px;padding:6px 12px;font-weight:700;font-size:15px}
+
+.nostalgie{display:grid;grid-template-columns:1fr;gap:14px}
+.feiten{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.feiten li{background:var(--kaart);border-radius:8px;padding:10px 14px}
+.feiten b{font-family:var(--display);font-size:18px}
+.opmerking{font-size:15px;color:var(--inkt-zacht);border-left:4px solid var(--tulp);padding-left:12px}
+
+details{background:var(--kaart);border-radius:10px;margin-bottom:8px}
+summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--display);font-size:24px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 16px;margin:0 0 14px}
+
+footer{margin-top:56px;background:var(--inkt);color:#dbe5ee;padding:28px 0 36px;font-size:15px}
+footer a{color:#fff}
+footer .wrap{display:grid;gap:10px}
+footer p{margin:0;max-width:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#inhoud">Direct naar de inhoud</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="merk" href="./">Huize Zuinig</a>
+    <nav aria-label="Hoofdmenu">
+      <a href="spel/">Speel nu</a>
+      <a href="#hoe-het-werkt">Hoe het werkt</a>
+      <a href="#voor-de-klas">Voor de klas</a>
+      <a href="#thuis-in-het-milieu">Thuis in het Milieu</a>
+      <a href="#veelgestelde-vragen">Vragen</a>
+    </nav>
+  </div>
+</header>
+
+<main id="inhoud">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Huize Zuinig</h1>
+        <p class="lead">Het gratis milieuspel voor iedereen die <strong>Thuis in het Milieu</strong> nog kent van de basisschool. Nu in pixel art, voor in je browser.</p>
+        <p>Je loopt een week lang door je huis, scheidt afval, zet de verwarming lager en kiest steeds de zuinigste optie. Aan het eind krijgt je huis een energielabel van A tot G.</p>
+        <a class="knop" href="spel/">Speel gratis</a>
+        <p class="klein">Geen account, geen advertenties. Werkt op computer, tablet en telefoon.</p>
+      </div>
+      <img src="img/kamer-woonkamer.png" width="640" height="448" alt="Pixel-art woonkamer uit Huize Zuinig met een bank, televisie, houtkachel en een trap naar boven">
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section id="hoe-het-werkt" aria-labelledby="h-hoe">
+      <h2 id="h-hoe">Hoe werkt Huize Zuinig?</h2>
+      <ol class="stappen">
+        <li><h3>Loop door het huis</h3><p>Ga via deuren en trappen van de woonkamer naar de keuken, slaapkamer, badkamer, zolder, tuin en oprit.</p></li>
+        <li><h3>Maak de keuze</h3><p>Op elke dag wachten drie klussen. Tik op het uitroepteken en kies uit drie opties wat je doet.</p></li>
+        <li><h3>Verdien je energielabel</h3><p>Zuinige keuzes leveren blaadjes op. Na zeven dagen zie je je label en je verbruik naast het zuinigste en het meest verkwistende huis.</p></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="h-leer">
+      <h2 id="h-leer">Wat leer je ervan?</h2>
+      <p>Elke klus draait om een echte keuze die je thuis ook maakt. Na elke keuze lees je waarom een optie zuiniger of slimmer is.</p>
+      <div class="raster">
+        <div class="kaart"><h3>Energie besparen</h3><p>Thermostaat, sluipverbruik, ledlampen, wassen op 30 graden en je auto laden op zonnestroom.</p></div>
+        <div class="kaart"><h3>Water besparen</h3><p>Korter douchen, een druppelende kraan repareren en de vaatwasser pas aanzetten als hij vol is.</p></div>
+        <div class="kaart"><h3>Afval scheiden</h3><p>Pizzadozen, statiegeld, lege batterijen, kapotte glazen en oude medicijnen: waar hoort wat?</p></div>
+        <div class="kaart"><h3>Slim eten</h3><p>Minder vlees, groente van het seizoen en weten wat "ten minste houdbaar tot" echt betekent.</p></div>
+        <div class="kaart"><h3>Vervoer</h3><p>Fiets of auto voor de boodschappen, en wanneer je het beste je elektrische auto laadt.</p></div>
+        <div class="kaart"><h3>Gezond en prettig wonen</h3><p>Ventileren, een warm huis zonder verspilling en het stookalert bij mist.</p></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-kamers">
+      <h2 id="h-kamers">Zeven kamers om te ontdekken</h2>
+      <div class="galerij">
+        <figure><img src="img/kamer-keuken.png" width="640" height="448" loading="lazy" alt="Pixel-art keuken met koelkast, kookplaat, vaatwasser en een zak met statiegeldflessen"><figcaption>De keuken: eten, afwassen en statiegeld</figcaption></figure>
+        <figure><img src="img/kamer-badkamer.png" width="640" height="448" loading="lazy" alt="Pixel-art badkamer met douche, wastafel en toilet in een betegelde ruimte"><figcaption>De badkamer: douchen en water</figcaption></figure>
+        <figure><img src="img/kamer-zolder.png" width="640" height="448" loading="lazy" alt="Pixel-art zolder met wasmachine, droger en dozen onder het schuine dak"><figcaption>De zolder: wassen en drogen</figcaption></figure>
+        <figure><img src="img/kamer-oprit.png" width="640" height="448" loading="lazy" alt="Pixel-art oprit met een rode elektrische auto, een laadpaal en een fiets"><figcaption>De oprit: laden en vervoer</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="voor-de-klas" aria-labelledby="h-klas">
+      <div class="klas">
+        <h2 id="h-klas">Voor in de klas</h2>
+        <p>Huize Zuinig is bedoeld voor kinderen van ongeveer groep 6 tot en met 8, en voor iedereen die nieuwsgierig is. Het is gratis, heeft geen account en verzamelt geen gegevens, dus je kunt het zo op het digibord of de tablets gebruiken.</p>
+        <ul>
+          <li><strong>Per dag:</strong> één dag duurt ongeveer 3 tot 5 minuten, goed voor het begin van een les of als weekopdracht.</li>
+          <li><strong>In groepjes:</strong> laat tweetallen samen kiezen en hun keuze verdedigen voordat ze op de optie tikken.</li>
+          <li><strong>Vergelijken:</strong> vergelijk de energielabels en bespreek wie er waarom anders koos.</li>
+        </ul>
+        <ol class="tijdlijn" aria-label="Voorbeeld van een lesopzet"><li>Voorspellen</li><li>Spelen</li><li>Label vergelijken</li><li>Bespreken</li></ol>
+        <h3>Vragen om te bespreken</h3>
+        <ul>
+          <li>Welke keuze had het meeste effect op je energielabel, en waarom?</li>
+          <li>Wanneer was de zuinigste keuze niet de prettigste? Wat is een goede middenweg?</li>
+          <li>Welke keuzes uit het spel maak jij thuis al, en welke zou je kunnen veranderen?</li>
+        </ul>
+        <p class="opmerking">De adviezen in het spel kloppen in grote lijnen. De cijfers voor energie, water en afval zijn ruwe schattingen om keuzes te vergelijken en geen meetgegevens.</p>
+      </div>
+    </section>
+
+    <section id="thuis-in-het-milieu" aria-labelledby="h-tihm">
+      <h2 id="h-tihm">Ken je Thuis in het Milieu?</h2>
+      <div class="nostalgie">
+        <div>
+          <p>Wie in de jaren negentig op de basisschool zat, kent het misschien nog: een computerspel waarin je klusjes in en om het huis doet en onderweg vragen over het milieu beantwoordt. Afval buiten zetten, de radiatoren bedienen, douchen en de was doen. Aan het einde van de week zie je hoe zuinig je was.</p>
+          <ul class="feiten">
+            <li><b>Thuis in het Milieu</b>: educatief spel van uitgeverij Malmberg uit 1990, gemaakt door Redline Software Design.</li>
+            <li><b>Speelbaar:</b> het Internet Archive heeft het originele spel online gezet. <a href="https://archive.org/details/ThuisInHetMilieu" rel="noopener">Speel het origineel in je browser</a>.</li>
+            <li><b>Bewaard:</b> het <a href="https://nationaalarchiefeducatievegames.nl/archief/thuis-in-het-milieu/" rel="noopener">Nationaal Archief Educatieve Games</a> bewaart het spel als onderdeel van het Nederlandse educatieve spelerfgoed.</li>
+          </ul>
+          <p>Huize Zuinig is geïnspireerd op dat idee, maar volledig nieuw gemaakt: nieuwe code, nieuwe pixel art en nieuwe klussen, zoals zonnepanelen en een elektrische auto. Het idee van een huis vol milieukeuzes is niet van één spel, en elk spel in dit genre is anders.</p>
+          <p class="opmerking">Huize Zuinig is een onafhankelijk project en niet gelieerd aan Malmberg, Redline Software Design of de makers van Thuis in het Milieu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="veelgestelde-vragen" aria-labelledby="h-faq">
+      <h2 id="h-faq">Veelgestelde vragen</h2>
+      <details><summary>Is Huize Zuinig hetzelfde als Thuis in het Milieu?</summary><p>Nee. Thuis in het Milieu is een educatief spel van Malmberg uit 1990. Huize Zuinig is een nieuw, onafhankelijk spel dat dezelfde ervaring wil geven: een huis, dagelijkse klusjes en vragen over wat het beste is voor het milieu. Het is niet gelieerd aan Malmberg of aan de makers van het originele spel.</p></details>
+      <details><summary>Kan ik Thuis in het Milieu nog spelen?</summary><p>Ja. Het Internet Archive heeft het originele spel online speelbaar gemaakt in een emulator. Je vindt de link hierboven bij het kopje over Thuis in het Milieu.</p></details>
+      <details><summary>Is Huize Zuinig gratis?</summary><p>Ja, het spel is gratis, zonder account en zonder advertenties. De broncode is open source onder de MIT-licentie.</p></details>
+      <details><summary>Werkt het op een telefoon, tablet of digibord?</summary><p>Ja. Het spel draait in de browser op computers, tablets, telefoons en digiborden. Je hoeft niets te installeren.</p></details>
+      <details><summary>Worden er gegevens van spelers verzameld?</summary><p>Nee. Het spel gebruikt geen account, geen cookies en geen statistieken. Je voortgang staat alleen in het geheugen van je browser tijdens het spelen.</p></details>
+      <details><summary>Hoe lang duurt het spel?</summary><p>Een speelweek heeft zeven dagen met drie klussen per dag. Een hele week duurt ongeveer 20 tot 30 minuten, en je kunt het ook per dag spelen.</p></details>
+      <details><summary>Kloppen de cijfers over energie, water en afval?</summary><p>De adviezen kloppen in grote lijnen, bijvoorbeeld statiegeld, het scheiden van afval en het gebruik van een ledlamp. De getallen in het spel zijn ruwe schattingen om keuzes met elkaar te vergelijken. Het zijn geen meetgegevens.</p></details>
+    </section>
+
+    <section aria-label="Begin met spelen" style="text-align:center">
+      <a class="knop" href="spel/">Begin op maandag</a>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Huize Zuinig</strong>, een gratis, open source milieuspel. Broncode onder de <a href="https://github.com/haaarold/Huize-Zuinig/blob/main/LICENSE" rel="noopener">MIT-licentie</a> op <a href="https://github.com/haaarold/Huize-Zuinig" rel="noopener">GitHub</a>.</p>
+    <p>Thuis in het Milieu is een werk van Malmberg en Redline Software Design. Genoemd ter verwijzing. Huize Zuinig is er niet aan verbonden.</p>
+  </div>
+</footer>
+</body>
+</html>

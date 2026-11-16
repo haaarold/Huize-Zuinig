@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speel Huize Zuinig | Gratis milieuspel in pixel art</title>
+<meta name="description" content="Speel Huize Zuinig: een gratis milieuspel in je browser. Loop door je huis, scheid afval, bespaar energie en water en verdien een energielabel. Een moderne opvolger in de geest van Thuis in het Milieu.">
+<link rel="canonical" href="https://haaarold.github.io/Huize-Zuinig/spel/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:title" content="Speel Huize Zuinig, het gratis milieuspel">
+<meta property="og:description" content="Een week lang de baas over energie, water en afval. Gratis in je browser, op computer en telefoon.">
+<meta property="og:url" content="https://haaarold.github.io/Huize-Zuinig/spel/">
+<meta property="og:image" content="https://haaarold.github.io/Huize-Zuinig/img/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: één kolom. Het speelbord is een pixel-art kamer in perspectief (160x112), je loopt via deuren en trap. Klussen eronder, keuzes in een blad van onderaf. Eén vaste lichte wereld. */
+  color-scheme:light;
+  --inkt:#14263a;
+  --inkt-zacht:#51627a;
+  --papier:#e9f0ee;
+  --kaart:#ffffff;
+  --lijn:#cfdad7;
+  --tulp:#ffc53d;
+  --blad:#1b8556;
+  --blad-licht:#dff3e8;
+  --fout:#cf4028;
+  --fout-licht:#fbe4de;
+  --display:"Pixelify Sans","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--papier);color:var(--inkt);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--inkt);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:14px}
+
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:700;font-size:36px;line-height:.95;margin:0}
+h1 span{display:block;font-family:var(--body);font-weight:600;font-size:13px;color:var(--inkt-zacht);margin-top:6px}
+.dagen{display:flex;gap:4px;list-style:none;margin:0;padding:0}
+.dagen li{font-size:12px;font-weight:700;width:30px;height:30px;display:grid;place-items:center;color:var(--inkt-zacht);border:2px solid var(--lijn);text-transform:lowercase}
+.dagen li.klaar{background:var(--blad);border-color:var(--blad);color:#fff}
+.dagen li.nu{background:var(--inkt);border-color:var(--inkt);color:#fff}
+
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.meter{background:var(--kaart);border-radius:8px;padding:8px 10px;min-width:0}
+.meter small{display:block;font-size:11px;font-weight:600;color:var(--inkt-zacht);white-space:nowrap}
+.meter b{font-family:var(--display);font-weight:700;font-size:21px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meter b i{font-style:normal;font-family:var(--body);font-size:11px;font-weight:600;color:var(--inkt-zacht);margin-left:2px}
+.meter.groen{background:var(--blad);color:#fff}
+.meter.groen small{color:#d5f0e2}
+.comfort{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.comfort .balk{flex:1;height:8px;background:var(--lijn);overflow:hidden}
+.comfort .balk i{display:block;height:100%;background:var(--tulp);transition:width .4s}
+.comfort.laag .balk i{background:var(--fout)}
+
+.bord{border-radius:10px;overflow:hidden;background:var(--inkt);display:flex;flex-direction:column}
+.kop{display:flex;justify-content:space-between;gap:8px;padding:8px 12px;color:#fff;font-size:13px;font-weight:600}
+.kop b{font-family:var(--display);font-size:17px;font-weight:700;color:var(--tulp)}
+#spel{display:block;width:100%;aspect-ratio:160/112;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer;touch-action:manipulation;background:#1b2233}
+.nav{display:flex;gap:6px;padding:8px;flex-wrap:wrap}
+.nav button{flex:1 1 0;min-width:0;min-height:46px;background:#24384f;color:#fff;border:0;border-radius:6px;font-weight:700;font-size:14px;padding:6px 8px;position:relative;white-space:nowrap}
+.nav button.tip{background:var(--tulp);color:var(--inkt)}
+
+.paneel{background:var(--kaart);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.paneel h2{font-family:var(--display);font-weight:700;font-size:23px;margin:0;text-wrap:balance}
+.paneel p{margin:0;max-width:60ch}
+.klus{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--papier);border:0;border-radius:8px;padding:10px 12px;min-height:54px}
+.klus .waar{font-size:11px;font-weight:700;color:var(--inkt-zacht);text-transform:uppercase;letter-spacing:.06em;display:block}
+.klus .wat{font-weight:700}
+.klus .tekst{flex:1;min-width:0}
+.klus .stat{font-size:13px;font-weight:700;white-space:nowrap}
+.klus.af{background:var(--blad-licht)}
+.blaadjes{display:inline-flex;gap:2px;vertical-align:middle}
+.blaadjes svg{width:16px;height:16px;fill:var(--blad)}
+.blaadjes svg.leeg{fill:var(--lijn)}
+.knop{background:var(--inkt);color:#fff;border:0;border-radius:8px;padding:14px 18px;font-weight:700;font-size:16px;min-height:50px}
+.knop[disabled]{background:var(--lijn);color:var(--inkt-zacht);cursor:not-allowed}
+.knop.licht{background:var(--papier);color:var(--inkt)}
+
+.laag{position:fixed;inset:0;background:rgba(20,38,58,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.laag[hidden]{display:none}
+.sheet{background:var(--kaart);width:100%;max-width:560px;max-height:92%;overflow-y:auto;border-radius:14px 14px 0 0;padding:20px 16px 24px;display:flex;flex-direction:column;gap:12px;animation:op .25s ease-out}
+@keyframes op{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet .waar{font-size:12px;font-weight:700;color:var(--inkt-zacht);text-transform:uppercase;letter-spacing:.07em}
+.sheet h2{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.05;margin:0;text-wrap:balance}
+.sheet p{margin:0}
+.optie{display:block;width:100%;text-align:left;background:var(--kaart);border:2px solid var(--lijn);border-radius:10px;padding:13px 14px;font-weight:600;min-height:52px}
+.optie:hover{border-color:var(--inkt)}
+.optie.gekozen{border-color:var(--inkt);background:var(--papier)}
+.optie.beste{border-color:var(--blad);background:var(--blad-licht)}
+.optie .tag{display:block;font-size:12px;font-weight:700;margin-top:4px;color:var(--inkt-zacht)}
+.optie.beste .tag{color:var(--blad)}
+.oordeel{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-weight:700;border-radius:999px;padding:6px 14px;background:var(--blad-licht);color:var(--blad)}
+.oordeel.matig{background:#fff3cf;color:#7a5600}
+.oordeel.slecht{background:var(--fout-licht);color:var(--fout)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-size:13px;font-weight:700;background:var(--papier);border-radius:6px;padding:4px 9px;font-variant-numeric:tabular-nums}
+.uitleg{background:var(--papier);border-radius:8px;padding:12px 14px}
+
+.label{display:flex;flex-direction:column;gap:4px}
+.label .rij{display:flex;align-items:center;gap:8px;height:30px}
+.label .staaf{height:100%;display:flex;align-items:center;padding-left:10px;font-family:var(--display);font-weight:700;font-size:19px;color:#fff;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%)}
+.label .jij{background:var(--inkt);color:#fff;font-weight:700;font-size:13px;height:100%;display:flex;align-items:center;padding:0 12px 0 20px;clip-path:polygon(14px 0,100% 0,100% 100%,14px 100%,0 50%)}
+.tabel{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tabel th,.tabel td{text-align:right;padding:7px 4px;border-bottom:1px solid var(--lijn);font-size:14px}
+.tabel th:first-child,.tabel td:first-child{text-align:left}
+.tabel th{font-size:12px;color:var(--inkt-zacht);font-weight:700}
+.klein{font-size:13px;color:var(--inkt-zacht);margin:0}
+@media (max-width:380px){h1{font-size:31px}.meter b{font-size:18px}.meter{padding:8px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Huize Zuinig<span>Een week lang de baas over energie, water en afval</span></h1>
+    <ol class="dagen" id="dagen" aria-label="Dagen van de week"></ol>
+  </header>
+
+  <div class="meters" aria-live="polite">
+    <div class="meter groen"><small>Blaadjes</small><b id="m-p">0</b></div>
+    <div class="meter"><small>Energie</small><b><span id="m-e">0</span><i>kWh</i></b></div>
+    <div class="meter"><small>Water</small><b><span id="m-w">0</span><i>L</i></b></div>
+    <div class="meter"><small>Restafval</small><b><span id="m-a">0</span><i>kg</i></b></div>
+  </div>
+  <div class="comfort" id="comfort"><span>Comfort</span><div class="balk"><i id="c-balk" style="width:70%"></i></div><span id="c-woord">Behaaglijk</span></div>
+
+  <div class="bord">
+    <div class="kop"><b id="kamernaam">Woonkamer</b><span id="weerlabel">Maandag, 4°C en regen</span></div>
+    <canvas id="spel" width="160" height="112" role="img" aria-label="De kamer waar je nu bent. Gebruik de knoppen eronder om te lopen en de klussenlijst om een klus te openen."></canvas>
+    <nav class="nav" id="nav" aria-label="Loop naar een andere kamer"></nav>
+  </div>
+
+  <section class="paneel" id="paneel" aria-live="polite"></section>
+  <p class="klein"><a href="../">Over Huize Zuinig</a> · <a href="https://github.com/haaarold/Huize-Zuinig">Broncode op GitHub</a><br>Een onafhankelijk spel, geïnspireerd op de schoolklassieker Thuis in het Milieu (Malmberg, 1990). Verbruikscijfers zijn ruwe schattingen voor het spel.</p>
+</div>
+
+<div class="laag" id="laag" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-titel" tabindex="-1"></div>
+</div>
+
+<script>
+const DAGEN=[
+  {n:"Maandag",k:"ma",weer:"regen",t:"4°C en regen"},
+  {n:"Dinsdag",k:"di",weer:"wolk",t:"6°C en bewolkt"},
+  {n:"Woensdag",k:"wo",weer:"zon",t:"9°C en volop zon"},
+  {n:"Donderdag",k:"do",weer:"vorst",t:"2°C, helder na nachtvorst"},
+  {n:"Vrijdag",k:"vr",weer:"wind",t:"7°C en harde wind"},
+  {n:"Zaterdag",k:"za",weer:"zon",t:"10°C en zon"},
+  {n:"Zondag",k:"zo",weer:"mist",t:"5°C, mistig en windstil"}
+];
+const KAMERS={woon:"Woonkamer",keuken:"Keuken",slaap:"Slaapkamer",bad:"Badkamer",zolder:"Zolder",tuin:"Tuin",oprit:"Oprit"};
+const UIT={
+  woon:[{d:"l",to:"oprit"},{d:"u",to:"slaap"},{d:"r",to:"keuken"}],
+  keuken:[{d:"l",to:"woon"},{d:"r",to:"tuin"}],
+  slaap:[{d:"d",to:"woon"},{d:"u",to:"zolder"},{d:"r",to:"bad"}],
+  bad:[{d:"l",to:"slaap"}],
+  zolder:[{d:"d",to:"slaap"}],
+  tuin:[{d:"l",to:"keuken"}],
+  oprit:[{d:"r",to:"woon"}]
+};
+/* p = blaadjes (0-3), e = kWh, w = liter, a = kg restafval, c = comfort; x,y = plek in de kamer */
+const TAKEN=[
+ {d:0,k:"woon",x:64,y:37,titel:"De thermostaat",tekst:"Buiten is het 4 graden en nat. De thermostaat staat op 22. Wat doe je?",
+  opties:[{t:"Laat lekker op 22 staan",p:0,e:40,c:1},{t:"Naar 19 graden en een trui aan",p:3,e:28},{t:"Verwarming helemaal uit",p:2,e:8,c:-3}],
+  uitleg:"Elke graad lager scheelt ongeveer 6% op je stookkosten. Helemaal uit lijkt zuinig, maar een koud huis wordt vochtig en dat geeft kans op schimmel."},
+ {d:0,k:"keuken",x:96,y:50,titel:"De pizzadoos",tekst:"Er staat een lege pizzadoos op het aanrecht. De bodem zit vol vetvlekken, het deksel is schoon.",
+  opties:[{t:"Hele doos bij het oud papier",p:1},{t:"Hele doos bij het restafval",p:2,a:0.3},{t:"Schoon deksel bij papier, vette bodem bij restafval",p:3,a:0.1}],
+  uitleg:"Vet en etensresten verpesten de papierrecycling. Scheur de doos door: het schone deel kan bij het oud papier, het vette deel hoort bij het restafval."},
+ {d:0,k:"bad",x:47,y:42,titel:"Douchen",tekst:"Na een regenachtige dag wil je opwarmen onder de douche.",
+  opties:[{t:"Vijf minuten, dan eruit",p:3,w:40,e:1.3},{t:"Een kwartier lekker lang",p:0,w:120,e:4},{t:"Eén minuut koud afspoelen",p:2,w:8,c:-2}],
+  uitleg:"Onder een gewone douche stroomt zo’n 8 liter warm water per minuut weg. Een kwartier douchen kost dus net zoveel als een vol bad. Vijf minuten is prima schoon én warm."},
+
+ {d:1,k:"zolder",x:50,y:60,titel:"De was",tekst:"De wasmand met gewone kleding is halfvol. Hoe pak je het aan?",
+  opties:[{t:"Nu draaien, halve trommel op 60 graden",p:0,e:1.3,w:45},{t:"Wachten tot de trommel vol is, dan op 60",p:1,e:1.2,w:50},{t:"Wachten tot de trommel vol is, dan op 30",p:3,e:0.5,w:50}],
+  uitleg:"Wassen op 30 graden kost ongeveer de helft minder stroom dan op 60, en gewone kleding wordt er prima schoon van. Handdoeken en beddengoed mogen af en toe wel op 60."},
+ {d:1,k:"woon",x:80,y:38,titel:"Sluipverbruik",tekst:"De tv, spelcomputer en soundbar staan dag en nacht op stand-by.",
+  opties:[{t:"Stekkerdoos met schakelaar erop, ’s nachts alles uit",p:3,e:0.1},{t:"Tv uitzetten met de afstandsbediening",p:1,e:0.5},{t:"Zo laten, wel zo makkelijk",p:0,e:0.6}],
+  uitleg:"Uitzetten met de afstandsbediening is ook stand-by: het lampje brandt en het apparaat blijft stroom trekken. Met een schakelaar op de stekkerdoos is het verbruik echt nul."},
+ {d:1,k:"keuken",x:32,y:90,titel:"Blikjes en flesjes",tekst:"Na een verjaardag ligt er een tas vol lege blikjes en plastic flesjes.",
+  opties:[{t:"Bij het pmd",p:1},{t:"Inleveren bij de supermarkt",p:3},{t:"In de grijze bak",p:0,a:0.4}],
+  uitleg:"Op blikjes en kleine plastic flesjes zit 15 cent statiegeld, op grote flessen 25 cent. Ingeleverd materiaal is schoner en wordt beter hergebruikt dan via het pmd."},
+
+ {d:2,k:"oprit",x:98,y:58,titel:"De auto laden",tekst:"De zon schijnt volop op de zonnepanelen. De elektrische auto moet morgenochtend vol zijn.",
+  opties:[{t:"Vanavond om zes uur aan de lader",p:0,e:12},{t:"Nu laden, op eigen zonnestroom",p:3,e:2},{t:"Vannacht laden",p:2,e:10}],
+  uitleg:"Je eigen zonnestroom direct gebruiken is het groenst en het goedkoopst, zeker nu salderen per 2027 stopt. Rond etenstijd is het stroomnet juist het zwaarst belast."},
+ {d:2,k:"zolder",x:70,y:60,titel:"De was drogen",tekst:"De was is klaar. Buiten is het droog en zonnig.",
+  opties:[{t:"Buiten aan de waslijn",p:3},{t:"In de droger, lekker zacht",p:0,e:3},{t:"Op een rek in de slaapkamer, raam dicht",p:1,c:-1}],
+  uitleg:"De droger is een van de grootste stroomvreters in huis, de waslijn is gratis. Binnen drogen kan ook, maar zet dan een raam of rooster open, anders blijft het vocht in huis hangen."},
+ {d:2,k:"keuken",x:50,y:64,titel:"De vaatwasser",tekst:"De vaatwasser is halfvol en je wilt een opgeruimd aanrecht.",
+  opties:[{t:"Wachten tot hij vol is, dan het eco-programma",p:3,e:0.8,w:10},{t:"Nu aanzetten op intensief",p:0,e:1.5,w:15},{t:"Alles met de hand onder de warme kraan",p:1,e:1.5,w:40}],
+  uitleg:"Het eco-programma duurt langer, maar gebruikt minder stroom en water omdat het op lagere temperatuur wast. Een volle vaatwasser is zuiniger dan afwassen onder een stromende warme kraan."},
+
+ {d:3,k:"slaap",x:71,y:28,titel:"Frisse lucht",tekst:"Het heeft gevroren. In de slaapkamer staan de ventilatieroosters open.",
+  opties:[{t:"Alles potdicht, dat scheelt warmte",p:1,c:-2},{t:"Roosters open laten, verwarming hier laag",p:3,e:2},{t:"Raam de hele dag wijd open, verwarming aan",p:0,e:9}],
+  uitleg:"Ventileren moet altijd, ook als het vriest. Zonder verse lucht hopen vocht en vieze stoffen zich op. Droge, frisse lucht warmt bovendien makkelijker op dan vochtige lucht."},
+ {d:3,k:"bad",x:79,y:48,titel:"De druppelende kraan",tekst:"De kraan van de wastafel druppelt al een week. Tik, tik, tik.",
+  opties:[{t:"Vandaag het rubbertje vervangen",p:3,w:1},{t:"Emmer eronder en de planten ermee water geven",p:2,w:10},{t:"Komt volgende maand wel",p:0,w:20}],
+  uitleg:"Een kraan die elke seconde druppelt, verspilt al gauw duizenden liters drinkwater per jaar. Een nieuw rubbertje kost een paar euro en zit er in tien minuten in."},
+ {d:3,k:"woon",x:48,y:20,titel:"Kapotte lamp",tekst:"De lamp boven de bank is doorgebrand. In de schuur ligt nog een oude gloeilamp.",
+  opties:[{t:"De gloeilamp uit de schuur erin",p:0,e:0.6},{t:"Een nieuwe halogeenlamp",p:1,e:0.4},{t:"Een ledlamp",p:3,e:0.1}],
+  uitleg:"Een ledlamp gebruikt ongeveer 85% minder stroom dan een gloeilamp en gaat jaren langer mee. De kapotte lamp lever je in bij een inzamelpunt, bijvoorbeeld in de bouwmarkt."},
+
+ {d:4,k:"keuken",x:75,y:50,titel:"Wat eten we?",tekst:"Vrijdagavond, tijd om te koken.",
+  opties:[{t:"Biefstuk met friet",p:0},{t:"Kip met rijst",p:2},{t:"Curry met kikkererwten en groente van het seizoen",p:3}],
+  uitleg:"Rundvlees heeft van al ons eten de grootste klimaatafdruk. Kip scheelt al veel, plantaardig eten nog meer. Een paar dagen per week zonder vlees maakt echt verschil."},
+ {d:4,k:"oprit",x:118,y:72,titel:"Boodschappen",tekst:"De supermarkt is twee kilometer verderop. Het waait flink.",
+  opties:[{t:"Op de fiets met fietstassen",p:3},{t:"Met de auto, het is maar even",p:1,e:0.8},{t:"Eén pak melk laten bezorgen",p:0}],
+  uitleg:"Voor korte stukjes wint de fiets altijd. Ook een elektrische auto verbruikt stroom, en een bezorgbus die voor één pak melk langskomt rijdt veel kilometers voor weinig."},
+ {d:4,k:"tuin",x:72,y:86,titel:"Het kapotte glas",tekst:"Er is een drinkglas gesneuveld. Waar laat je de scherven?",
+  opties:[{t:"In de glasbak",p:0},{t:"Bij het restafval",p:3,a:0.2},{t:"Bij het pmd",p:0}],
+  uitleg:"Een strikvraag. De glasbak is alleen voor verpakkingsglas, zoals potten en flessen. Drinkglazen en ovenschalen smelten op een andere temperatuur en verstoren de recycling. Die horen bij het restafval."},
+
+ {d:5,k:"tuin",x:104,y:98,titel:"Tegels in de tuin",tekst:"Klusdag. De achtertuin is van schutting tot schutting betegeld.",
+  opties:[{t:"Tegels eruit, planten erin",p:3},{t:"Zo laten, makkelijk schoon te houden",p:1},{t:"Kunstgras eroverheen",p:0}],
+  uitleg:"In een groene tuin zakt regenwater de grond in, in plaats van het riool te overbelasten. Planten houden je tuin in de zomer koeler en geven insecten en vogels een plek."},
+ {d:5,k:"slaap",x:116,y:76,titel:"Gat in je spijkerbroek",tekst:"In je favoriete spijkerbroek zit een scheur bij de knie.",
+  opties:[{t:"Weggooien en een nieuwe kopen",p:0,a:0.6},{t:"In de textielbak en een tweedehands broek zoeken",p:2},{t:"Repareren of laten maken",p:3}],
+  uitleg:"Voor één nieuwe spijkerbroek zijn duizenden liters water nodig. Repareren is het zuinigst. Kapot textiel mag trouwens ook gewoon in de textielbak, zolang het schoon en droog is."},
+ {d:5,k:"zolder",x:108,y:56,titel:"Lege batterijen",tekst:"Bij het opruimen vind je een doos met lege batterijen en een kapotte oplader.",
+  opties:[{t:"Meenemen naar de inzamelbak in de supermarkt",p:3},{t:"Terug in de la, voor later",p:1},{t:"In de grijze bak",p:0,a:0.2}],
+  uitleg:"Batterijen en kleine apparaten bevatten waardevolle metalen en schadelijke stoffen. In bijna elke supermarkt en bouwmarkt staat een inzamelbak. In het restafval gaan ze verloren en kunnen ze brand veroorzaken."},
+
+ {d:6,k:"keuken",x:100,y:48,titel:"De yoghurt",tekst:"Op het pak yoghurt staat: ten minste houdbaar tot gisteren.",
+  opties:[{t:"Kijken, ruiken en proeven",p:3},{t:"Weggooien, zeker is zeker",p:0,a:0.5},{t:"Voortaan alles een dag voor de datum al weggooien",p:0,a:0.5}],
+  uitleg:"‘Ten minste houdbaar tot’ gaat over kwaliteit: daarna is het vaak nog prima, vertrouw op je zintuigen. Alleen bij ‘te gebruiken tot’ gaat het om veiligheid en eet je het na de datum niet meer."},
+ {d:6,k:"woon",x:117,y:60,titel:"De houtkachel",tekst:"Het is mistig en windstil. Gezellig weer voor de houtkachel, vind je.",
+  opties:[{t:"Kachel uit laten, dekentje op de bank",p:3},{t:"Stoken met droog hout",p:1,c:1},{t:"Stoken, en dat oude geverfde hout gaat ook mee",p:0,c:1}],
+  uitleg:"Bij mist en windstil weer blijft rook tussen de huizen hangen. Het RIVM geeft dan een stookalert af. Houtrook zit vol fijnstof, en geverfd hout geeft bij verbranding giftige stoffen."},
+ {d:6,k:"bad",x:100,y:34,titel:"Oude medicijnen",tekst:"In het badkamerkastje staan pillen en een drankje die al lang over datum zijn.",
+  opties:[{t:"Door de wc spoelen",p:0},{t:"Inleveren bij de apotheek",p:3},{t:"Bij het restafval",p:1,a:0.1}],
+  uitleg:"Medicijnresten zijn heel moeilijk uit rioolwater te zuiveren en belanden zo in rivieren. Lever ze in bij de apotheek of bij het chemisch afval op de milieustraat."}
+];
+const VOLGORDE=[[0,1,2],[1,2,0],[2,0,1],[1,0,2],[2,1,0],[0,2,1]];
+const BLAD='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 2.5C7 2.5 3 5.5 3 10c0 1 .2 1.8.6 2.5C5 9 8 6.5 11 5.5 8 7.5 5.6 10.3 4.6 13.4 8.5 14 13.5 11 13.5 2.5z"/></svg>';
+const LABELS=[["A","#009a44"],["B","#4db848"],["C","#a8c520"],["D","#e3c400"],["E","#f5a300"],["F","#f37021"],["G","#e2231a"]];
+
+let s={fase:"intro",dag:0,kamer:"woon",keuzes:{}};
+const $=id=>document.getElementById(id);
+const nl=(v,d=1)=>v.toLocaleString("nl-NL",{maximumFractionDigits:d});
+const blaadjes=n=>'<span class="blaadjes" aria-label="'+n+' van 3 blaadjes">'+[0,1,2].map(i=>i<n?BLAD:BLAD.replace("<svg",'<svg class="leeg"')).join("")+"</span>";
+
+/* ================= pixel art ================= */
+const W=160,H=112,VX=80,VY=47,HW=44,HH=29;
+const cv=$("spel"),g=cv.getContext("2d");
+const RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+let f=0,tr=null;
+const hex=c=>{const n=parseInt(c.slice(1),16);return[n>>16,n>>8&255,n&255];};
+const sh=(c,k)=>[c[0]*k,c[1]*k,c[2]*k];
+const fr=v=>v-Math.floor(v);
+const WIT=hex("#f4f1e8");
+function planks(base){const b=hex(base);return(u,z)=>{const k=(u+1)*5,i=Math.floor(k);if(fr(k)<.07)return sh(b,.72);if(fr(z*2.2+i*.37)<.05)return sh(b,.78);return sh(b,.92+.05*(((i*7+30)%3)));};}
+function checker(a,c,n){const A=hex(a),C=hex(c);return(u,z)=>((Math.floor((u+1)*n)+Math.floor(z*(n+1)))&1)?A:C;}
+function wall(base,k,door){const b=sh(hex(base),k);return(z,h)=>{
+  if(door&&z>1.2&&z<1.62&&h>-.42){
+    if(z<1.24||z>1.58||h<-.36)return sh(WIT,k);
+    if(door==="glas")return h>.5?sh(WIT,k):(fr(z*6)<.1?sh(WIT,k):hex("#a8d8f5"));
+    if(z>1.49&&z<1.54&&h>.18&&h<.3)return hex("#e9c46a");
+    return sh(hex(door),k);}
+  if(h>.9)return sh(WIT,k*.95);
+  return b;};}
+function brick(k,door){const dr=wall("#000000",k,door);return(z,h)=>{
+  if(z>1.2&&z<1.62&&h>-.42)return dr(z,h);
+  const row=Math.floor(h*9+40);
+  if(fr(h*9)<.15||fr(z*7+(row&1)*.5)<.09)return sh(hex("#d8c2a8"),k);
+  return sh(hex("#b5533c"),k*(.9+.1*(row%2)));};}
+const plain=base=>{const b=hex(base);return(x,y)=>y>=73?sh(WIT,.95):b;};
+const ceil=()=>hex("#eef0ea");
+const ROOF=hex("#7a5638");
+const SHELL={
+  woon:{back:plain("#3f6f73"),left:wall("#3f6f73",.8,"#2f5d50"),right:wall("#3f6f73",.9,"#8a5a3b"),floor:planks("#b98556"),ceil},
+  keuken:{back:(x,y)=>y>=73?sh(WIT,.95):(y>=43&&y<54)?((x%5===0||y%5===3)?hex("#cfd6d6"):hex("#f7f9f7")):hex("#e7dcc8"),
+    left:wall("#e7dcc8",.82,"#8a5a3b"),right:wall("#e7dcc8",.92,"glas"),floor:checker("#d9dee0","#59616d",4),ceil},
+  slaap:{back:plain("#7d93b8"),left:wall("#7d93b8",.8),right:wall("#7d93b8",.9,"#d9cfc0"),floor:planks("#d2b48c"),ceil},
+  bad:{back:(x,y)=>(x%6===0||y%6===2)?hex("#e6f4f0"):hex("#bfe3da"),left:wall("#bfe3da",.82,"#d9cfc0"),right:wall("#bfe3da",.92),floor:checker("#2f6f73","#eef3f1",4),ceil},
+  zolder:{back:(x,y)=>y<18+Math.abs(x+.5-80)*32/44?(((x+y*2)%9===0)?sh(ROOF,.8):ROOF):(y>=73?sh(WIT,.9):hex("#e3d9c6")),
+    left:(z,h)=>h<.1?(fr(z*5)<.12?sh(ROOF,.6):sh(ROOF,.78)):h>.9?sh(WIT,.75):sh(hex("#e3d9c6"),.8),
+    right:(z,h)=>h<.1?(fr(z*5)<.12?sh(ROOF,.7):sh(ROOF,.9)):h>.9?sh(WIT,.85):sh(hex("#e3d9c6"),.9),
+    floor:planks("#a8794f"),ceil:(u,z)=>fr(z*5)<.12?sh(ROOF,.65):ROOF},
+  tuin:{out:1,wall:"l",side:brick(.85,"glas"),fy:50,fence:(x,y)=>y===50?hex("#a8794f"):(x%7===0?hex("#6b4a35"):hex("#8f6641")),floor:checker("#c2c8ca","#a9b0b3",3)},
+  tuin2:{out:1,wall:"l",side:brick(.85,"glas"),fy:50,fence:(x,y)=>y===50?hex("#a8794f"):(x%7===0?hex("#6b4a35"):hex("#8f6641")),
+    floor:(u,z)=>{const n=(Math.floor((u+4)*23)*7+Math.floor(z*31)*13)%17;return n===0?hex("#f2c14e"):n===5?hex("#e76f8a"):n<4?hex("#3f8a52"):hex("#5a9f5c");}},
+  oprit:{out:1,wall:"r",side:brick(.92,"#2f5d50"),fy:54,fence:(x,y)=>((x*7+y*13)%5===0||y===54)?hex("#2f6b3f"):hex("#3f8a52"),
+    floor:(u,z)=>{const row=Math.floor(z*9),k=(u+4)*7+(row&1)*.5;return fr(k)<.1||fr(z*9)<.12?hex("#857a76"):((Math.floor(k)+row)%3?hex("#a8938a"):hex("#b29e94"));}}
+};
+const cache={};
+function shell(key){
+  if(cache[key])return cache[key];
+  const S=SHELL[key],c=document.createElement("canvas");c.width=W;c.height=H;
+  const x2=c.getContext("2d"),im=x2.createImageData(W,H),d=im.data;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const dx=x+.5-VX,dy=y+.5-VY,ax=Math.abs(dx)/HW,ay=Math.abs(dy)/HH;let col=null;
+    if(S.out){
+      if(ax>ay&&ax>1&&(dx<0)===(S.wall==="l"))col=S.side(ax,dy/Math.abs(dx)*HW/HH);
+      else if(y>=76)col=S.floor(dx/dy*HH/HW,ay);
+      else if(y>=S.fy)col=S.fence(x,y);
+    }else if(ax<=1&&ay<=1)col=S.back(x,y);
+    else if(ax>ay)col=(dx<0?S.left:S.right)(ax,dy/Math.abs(dx)*HW/HH);
+    else col=dy>0?S.floor(dx/dy*HH/HW,ay):S.ceil(dx/dy*HH/HW,ay);
+    if(col){const i=(y*W+x)*4;d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;}
+  }
+  x2.putImageData(im,0,0);return cache[key]=c;
+}
+const r=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+const weer=()=>DAGEN[s.dag].weer;
+const SKY={regen:["#6f8496","#93a7b4"],wolk:["#9fb2c0","#c3d2da"],zon:["#5aa9e6","#a8d8f5"],vorst:["#8dc0ec","#d8ecf8"],wind:["#8aa5bd","#bccfdb"],mist:["#bcc6ca","#d6dcdc"]};
+function wsky(x,y,w,h){
+  const c=SKY[weer()],k=weer();r(x,y,w,h,c[0]);r(x,y+(h>>1),w,h-(h>>1),c[1]);
+  if(k==="zon"||k==="vorst")r(x+w-7,y+2,4,4,"#ffe27a");
+  if(k==="wolk"||k==="regen"||k==="wind"){const o=k==="wind"?(f>>1)%(w-9):2;r(x+o,y+4,8,3,"#eef3f6");r(x+o+2,y+3,4,1,"#eef3f6");}
+  if(k==="regen")for(let i=0;i<w/3;i++)r(x+i*3+1,y+((f*3+i*5)%(h-2)),1,2,"#dbe8ef");
+  if(k==="mist")r(x,y,w,h,"rgba(255,255,255,.35)");
+  if(k==="vorst"){r(x,y+h-3,3,3,"#fff");r(x+w-2,y+h-2,2,2,"#fff");}
+}
+function win(x,y,w,h){r(x-1,y-1,w+2,h+2,"#f4f1e8");wsky(x,y,w,h);r(x+(w>>1),y,1,h,"#f4f1e8");r(x,y+(h>>1),w,1,"#f4f1e8");r(x-2,y+h+1,w+4,2,"#ddd6c4");}
+function cloud(x,y){r(x,y+3,22,5,"#eef3f6");r(x+4,y,10,4,"#eef3f6");r(x+12,y+1,7,3,"#eef3f6");}
+function skyFull(){
+  const k=weer(),c=SKY[k];r(0,0,W,30,c[0]);r(0,30,W,H,c[1]);
+  for(let x=0;x<W;x+=2){r(x,30,1,1,c[0]);r(x+1,29,1,1,c[1]);}
+  if(k==="zon"||k==="vorst"){r(126,8,10,10,"#ffe27a");r(128,6,6,14,"#ffe27a");r(124,10,14,6,"#ffe27a");}
+  if(k==="regen"||k==="wolk"||k==="wind"){const o=k==="wind"?f%60:0;cloud(16+o,8);cloud(84+(o>>1),16);}
+}
+function overlay(){
+  const k=weer();
+  if(k==="regen")for(let i=0;i<46;i++)r((i*37+f*2)%W,(i*53+f*7)%H,1,3,"rgba(225,238,246,.7)");
+  if(k==="mist"){r(0,26,W,H,"rgba(226,232,232,.32)");r(0,40,W,34,"rgba(226,232,232,.3)");}
+}
+function stairs(x,y,w,h){r(x-1,y-1,w+2,h+1,"#f4f1e8");r(x,y,w,h,"#1b2233");for(let i=0;i<6;i++)r(x+1+i,y+h-4-i*6,w-1-i,3,i%2?"#8a5a3b":"#a8794f");}
+function ring(x,y){r(x+2,y,5,1,"#1b2233");r(x+2,y+8,5,1,"#1b2233");r(x,y+2,1,5,"#1b2233");r(x+8,y+2,1,5,"#1b2233");r(x+1,y+1,1,1,"#1b2233");r(x+7,y+1,1,1,"#1b2233");r(x+1,y+7,1,1,"#1b2233");r(x+7,y+7,1,1,"#1b2233");r(x+4,y+4,1,1,"#9aa5ab");}
+const gedaan=i=>i in s.keuzes;
+
+const TEKEN={
+  woon(){
+    win(40,27,18,22);r(37,24,24,2,"#3a2a22");r(38,26,3,27,"#e9c46a");r(57,26,3,27,"#e9c46a");
+    r(62,36,5,5,"#f4f1e8");r(63,37,3,2,gedaan(0)&&s.keuzes[0]!==0?"#58d68d":"#e76f51");
+    r(68,32,24,16,"#1b2233");r(69,33,22,14,gedaan(4)&&s.keuzes[4]===0?"#131a26":"#2d4a70");r(71,35,6,1,"#4f77a8");
+    if(!(gedaan(4)&&s.keuzes[4]===0))r(90,46,1,1,"#ff4d4d");
+    r(71,51,18,2,"#2b3345");r(66,55,28,2,"#8a5a3b");r(70,57,2,4,"#6b4a35");r(88,57,2,4,"#6b4a35");r(76,52,6,3,"#d0d5da");
+    stairs(96,34,14,42);
+    r(117,18,2,42,"#2f3540");r(113,60,10,17,"#22262e");r(112,59,12,2,"#2f3540");r(115,64,6,6,s.dag===6&&gedaan(19)&&s.keuzes[19]>0?(f%2?"#ff9b3d":"#ffc53d"):"#3a2f2a");r(114,77,2,2,"#22262e");r(120,77,2,2,"#22262e");
+    r(48,0,1,12,"#1b2233");r(44,12,9,5,"#f4f1e8");r(43,16,11,1,"#ddd6c4");r(47,17,3,2,s.dag===3&&!gedaan(11)?"#59616d":"#ffe27a");
+    r(22,109,62,2,"rgba(0,0,0,.22)");r(21,86,5,24,"#c98d2a");r(78,86,5,24,"#c98d2a");r(25,88,54,21,"#e0a43a");r(25,88,54,2,"#f0bf5c");r(51,91,1,17,"#c98d2a");
+    if(s.dag===6){r(30,84,14,5,"#e76f51");r(30,84,14,1,"#f08a70");}
+  },
+  keuken(){
+    r(38,22,21,17,"#2f5d50");r(48,22,1,17,"#234a40");r(46,34,1,3,"#e9c46a");r(50,34,1,3,"#e9c46a");
+    win(65,23,24,18);
+    r(106,28,17,50,"#cfd6dc");r(122,28,1,50,"#aab3ba");r(106,46,17,1,"#9aa5ab");r(108,34,1,8,"#6b7680");r(108,50,1,10,"#6b7680");
+    r(36,54,70,3,"#c9955c");r(36,57,70,21,"#2f5d50");r(62,57,1,21,"#234a40");r(87,57,1,21,"#234a40");r(96,62,1,4,"#e9c46a");
+    r(42,58,16,19,"#cfd6dc");r(44,60,12,1,"#6b7680");r(55,62,1,1,"#58d68d");
+    r(66,58,18,19,"#22262e");r(68,63,14,9,"#3a4250");r(68,60,14,1,"#9aa5ab");r(66,53,18,1,"#22262e");
+    r(70,50,9,3,"#59616d");r(79,51,4,1,"#59616d");if(s.dag===4){r(72,47+(f%2),1,2,"#eef3f6");r(75,46+((f+1)%2),1,2,"#eef3f6");}
+    r(92,49,1,5,"#9aa5ab");r(92,49,4,1,"#9aa5ab");
+    r(100,0,1,10,"#1b2233");r(96,10,9,4,"#e76f51");r(99,14,3,1,"#ffe27a");
+    if(s.dag===0&&!gedaan(1)){r(89,51,14,3,"#d9b38c");r(89,51,14,1,"#c0392b");}
+    if(s.dag===1&&!gedaan(5)){r(26,92,13,14,"#3f88c5");r(26,92,13,1,"#6aa9dd");r(28,89,3,4,"#d0d5da");r(32,88,3,5,"#e74c3c");r(36,90,2,3,"#58d68d");}
+    if(s.dag===6&&!gedaan(18)){r(98,47,4,7,"#f4f1e8");r(98,49,4,2,"#5aa9e6");}
+  },
+  slaap(){
+    stairs(40,34,14,42);
+    win(60,27,22,21);r(60,23,22,3,"#d0d5da");for(let i=0;i<5;i++)r(62+i*4,24,2,1,"#6b7680");
+    r(86,46,34,22,"#6b4a35");r(87,47,32,2,"#8a5a3b");
+    for(let i=0;i<5;i++)r(86+i,68+i*3,1,9+i,"#b7ab9a");
+    for(let y=68;y<80;y++){const t=(y-68)/12;r(Math.round(86+4*t),y,Math.round(34+20*t),1,t<.32?"#f2e9dc":"#3f6f73");}
+    r(90,67,11,4,"#ffffff");r(105,67,11,4,"#ffffff");
+    r(90,80,54,10,"#346064");r(90,80,54,1,"#4f8589");r(90,90,54,3,"#6b4a35");r(90,93,54,2,"rgba(0,0,0,.2)");
+    if(s.dag===5&&!gedaan(16)){r(110,75,13,4,"#3d6ea8");r(110,75,13,1,"#5b8cc6");r(116,77,2,1,"#1b2233");}
+    r(20,0,1,8,"#1b2233");r(16,8,9,5,"#e9c46a");
+  },
+  bad(){
+    r(37,22,23,53,"rgba(200,236,244,.3)");r(60,22,1,56,"#d6f0f7");r(36,74,25,4,"#e8eef0");
+    r(40,24,1,44,"#9aa5ab");r(40,24,7,1,"#9aa5ab");r(45,25,5,2,"#9aa5ab");
+    if(s.dag===0&&!gedaan(2))for(let i=0;i<4;i++)r(45+i,28+((f*2+i*3)%10)*4,1,2,"#8fd3f4");
+    r(70,26,18,20,"#9aa5ab");r(71,27,16,18,"#d6f0f7");r(73,29,2,6,"#ffffff");
+    r(68,52,22,5,"#f4f8fa");r(68,56,22,1,"#c9d3d9");r(76,57,6,19,"#e3eaee");r(78,46,2,6,"#9aa5ab");r(78,46,4,1,"#9aa5ab");
+    if(s.dag===3&&!(gedaan(10)&&s.keuzes[10]===0))r(81,47+(f%5),1,2,"#5aa9e6");
+    r(94,26,13,17,"#f4f8fa");r(94,26,13,1,"#c9d3d9");r(100,27,1,16,"#c9d3d9");r(96,33,3,1,"#e74c3c");r(97,32,1,3,"#e74c3c");
+    r(108,54,12,14,"#f4f8fa");r(108,54,12,1,"#c9d3d9");r(107,68,14,5,"#f4f8fa");r(110,73,8,5,"#e3eaee");
+    for(let y=82;y<88;y++)r(64-(y-82),y,30+2*(y-82),1,y===82||y===87?"#d4a93a":"#e9c46a");
+  },
+  zolder(){
+    r(73,29,14,12,"#f4f1e8");wsky(74,30,12,10);r(80,30,1,10,"#f4f1e8");
+    r(92,48,8,10,"#e8eef0");r(94,50,4,3,"#2b3345");r(94,55,1,1,"#58d68d");
+    r(42,56,17,22,"#f4f8fa");r(42,56,17,4,"#d6dde2");r(44,57,4,1,"#59616d");r(46,63,9,9,"#6b7680");r(47,64,7,7,"#9fc5de");r(48,65,2,2,"#d6f0f7");
+    r(61,56,17,22,"#f4f8fa");r(61,56,17,4,"#d6dde2");r(72,57,4,1,"#59616d");r(65,63,9,9,"#6b7680");r(66,64,7,7,"#39424d");
+    r(60,56,1,22,"#c9d3d9");
+    r(100,62,17,16,"#c9a26b");r(100,69,17,1,"#8f6b3d");r(107,62,2,16,"#e3d2b0");r(104,52,12,10,"#b88f58");r(104,56,12,1,"#8f6b3d");
+    if(s.dag===5&&!gedaan(17)){r(106,49,2,3,"#e74c3c");r(109,50,2,2,"#e9c46a");r(112,49,2,3,"#3d6ea8");}
+    if(s.dag===1&&!gedaan(3)){r(28,84,15,11,"#c9955c");r(28,84,15,1,"#e0b27e");r(29,81,6,4,"#e76f51");r(35,80,7,5,"#5aa9e6");}
+    if(s.dag===2&&!gedaan(7)){r(28,84,15,11,"#c9955c");r(29,81,13,4,"#f4f8fa");}
+    r(63,93,34,1,"#6b4a35");for(let i=0;i<14;i++){const w=32+i;r(80-(w>>1),94+i,w,1,"#14263a");}
+    r(72,94,1,14,"#c9955c");r(87,94,1,14,"#c9955c");r(72,97,16,1,"#c9955c");r(72,102,16,1,"#c9955c");r(72,107,16,1,"#c9955c");
+    r(120,0,1,6,"#1b2233");r(118,6,5,4,"#ffe27a");
+  },
+  tuinVoor(){r(128,26,4,26,"#6b4a35");r(114,12,32,18,"#c9772e");r(120,6,20,8,"#d98a3a");r(110,18,40,10,"#b5652a");r(118,14,6,3,"#e0a43a");r(134,20,7,3,"#e0a43a");},
+  tuin(){
+    const bak=(x,c,l)=>{r(x,58,11,19,c);r(x-1,56,13,3,l);r(x+1,77,2,2,"#1b2233");r(x+8,77,2,2,"#1b2233");r(x,79,11,1,"rgba(0,0,0,.2)");};
+    bak(84,"#2f8a4a","#226b38");bak(98,"#e88a2a","#c26f1b");bak(112,"#5d6770","#454d55");
+    r(140,70,9,8,"#c8553d");r(139,69,11,2,"#a8432f");r(142,60,2,10,"#3f8a52");r(138,62,5,3,"#4c9159");r(144,58,5,4,"#4c9159");
+    if(s.dag===4&&!gedaan(14)){r(70,88,2,1,"#eaf8fc");r(73,90,1,1,"#eaf8fc");r(68,91,2,1,"#bfe9f2");r(75,87,1,2,"#bfe9f2");r(72,86,1,1,"#ffffff");}
+    if(s.keuzes[15]===0){r(96,92,3,6,"#3f8a52");r(94,90,7,3,"#e76f8a");r(120,96,3,6,"#3f8a52");r(118,94,7,3,"#f2c14e");r(60,100,3,5,"#3f8a52");r(58,98,7,3,"#ffffff");}
+  },
+  oprit(){
+    r(30,84,60,2,"rgba(0,0,0,.22)");
+    r(42,57,31,10,"#c94a34");r(44,59,13,7,"#cfe9f7");r(59,59,12,7,"#cfe9f7");
+    r(30,66,58,13,"#e2573f");r(30,66,58,1,"#f07a63");r(86,69,2,3,"#ffe27a");r(30,69,2,3,"#8f1f12");r(57,68,1,10,"#c94a34");r(62,71,4,1,"#8f1f12");
+    r(36,76,9,8,"#1b2233");r(39,79,3,2,"#cfd8dc");r(72,76,9,8,"#1b2233");r(75,79,3,2,"#cfd8dc");
+    r(96,56,4,27,"#2b3a4a");r(95,55,6,2,"#3c4f63");r(97,59,2,2,s.dag===2?(f%4<2?"#58d68d":"#2f8a4a"):"#58d68d");
+    if(s.dag===2){r(92,66,4,1,"#1b2233");r(90,67,2,1,"#1b2233");r(88,68,2,3,"#1b2233");}
+    ring(108,76);ring(122,76);r(112,74,13,1,"#3f88c5");r(113,75,1,5,"#3f88c5");r(118,70,1,5,"#3f88c5");r(124,70,1,10,"#3f88c5");r(116,69,5,1,"#1b2233");r(122,69,4,1,"#1b2233");
+    if(s.dag===4){r(110,73,5,5,"#2f5d50");}
+  }
+};
+function tri(x,y,d,c){
+  r(x-1,y-1,7,7,"#14263a");
+  if(d==="l"){r(x+3,y,1,5,c);r(x+2,y+1,1,3,c);r(x+1,y+2,1,1,c);}
+  if(d==="r"){r(x+1,y,1,5,c);r(x+2,y+1,1,3,c);r(x+3,y+2,1,1,c);}
+  if(d==="u"){r(x,y+3,5,1,c);r(x+1,y+2,3,1,c);r(x+2,y+1,1,1,c);}
+  if(d==="d"){r(x,y+1,5,1,c);r(x+1,y+2,3,1,c);r(x+2,y+3,1,1,c);}
+}
+function zone(room,e){
+  if(e.d==="l")return[2,24,30,74];
+  if(e.d==="r")return[128,24,30,74];
+  if(room==="woon")return[94,32,18,46];
+  if(room==="slaap")return e.d==="u"?[38,32,18,23]:[38,55,18,23];
+  return[60,90,40,22];
+}
+function pijlplek(room,e){
+  if(e.d==="l")return[3,56];if(e.d==="r")return[152,56];
+  if(room==="woon")return[100,36];
+  if(room==="slaap")return e.d==="u"?[44,36]:[44,67];
+  return[77,84];
+}
+const takenVan=d=>TAKEN.map((t,i)=>({...t,i})).filter(t=>t.d===d);
+function open(){return s.fase==="spel"?takenVan(s.dag).filter(t=>!gedaan(t.i)).map(t=>t.k):[];}
+function leidtNaar(van,e,doel){
+  if(!doel.length)return false;
+  const zien=new Set([van]),rij=[e.to];
+  while(rij.length){const k=rij.shift();if(zien.has(k))continue;zien.add(k);if(doel.includes(k))return true;UIT[k].forEach(x=>rij.push(x.to));}
+  return false;
+}
+function marker(x,y,af){
+  const b=af?0:(f%6<3?0:1),by=Math.max(1,y-16-b);
+  if(af){r(x-4,by+4,9,9,"#14263a");r(x-3,by+5,7,7,"#1b8556");r(x-2,by+8,1,1,"#fff");r(x-1,by+9,1,1,"#fff");r(x,by+8,1,1,"#fff");r(x+1,by+7,1,1,"#fff");r(x+2,by+6,1,1,"#fff");}
+  else{r(x-5,by,11,12,"#14263a");r(x-4,by+1,9,10,"#ffc53d");r(x-4,by+1,9,1,"#ffe08a");r(x-1,by+12,3,1,"#14263a");r(x,by+13,1,1,"#14263a");r(x-1,by+3,2,4,"#14263a");r(x-1,by+8,2,2,"#14263a");}
+}
+function tekenKamer(room,ox,oy){
+  g.save();g.translate(Math.round(ox),Math.round(oy));g.beginPath();g.rect(0,0,W,H);g.clip();
+  const buiten=room==="tuin"||room==="oprit";
+  if(buiten)skyFull();
+  if(room==="tuin")TEKEN.tuinVoor();
+  g.drawImage(shell(room==="tuin"&&s.keuzes[15]===0?"tuin2":room),0,0);
+  TEKEN[room]();
+  if(s.fase==="spel")takenVan(s.dag).forEach(t=>{if(t.k===room)marker(t.x,t.y,gedaan(t.i));});
+  const doel=open();
+  UIT[room].forEach(e=>{const p=pijlplek(room,e),tip=leidtNaar(room,e,doel);if(!tip||f%8<6)tri(p[0],p[1],e.d,tip?"#ffc53d":"#f4f1e8");});
+  if(buiten)overlay();
+  g.restore();
+}
+function teken(t){
+  g.imageSmoothingEnabled=false;
+  if(tr){
+    if(!tr.t0)tr.t0=t;
+    let p=Math.min(1,(t-tr.t0)/260);p=p*(2-p);
+    const v={r:[1,0],l:[-1,0],u:[0,-1],d:[0,1]}[tr.dir];
+    r(0,0,W,H,"#14263a");
+    tekenKamer(tr.van,-v[0]*p*W,-v[1]*p*H);
+    tekenKamer(s.kamer,v[0]*(1-p)*W,v[1]*(1-p)*H);
+    if(p>=1)tr=null;
+  }else tekenKamer(s.kamer,0,0);
+}
+let vorige=0;
+function lus(t){
+  if(t-vorige>120){if(!RM)f++;vorige=t;teken(t);}else if(tr)teken(t);
+  requestAnimationFrame(lus);
+}
+function ga(to,dir){
+  if(to===s.kamer)return;
+  if(!RM)tr={van:s.kamer,dir:dir||"r",t0:0};
+  s.kamer=to;render();
+}
+cv.addEventListener("click",ev=>{
+  if(tr)return;
+  const b=cv.getBoundingClientRect(),x=(ev.clientX-b.left)/b.width*W,y=(ev.clientY-b.top)/b.height*H;
+  if(s.fase==="spel"){
+    const raak=takenVan(s.dag).filter(t=>t.k===s.kamer).map(t=>({t,a:Math.hypot(x-t.x,y-(t.y-7))})).sort((a,b)=>a.a-b.a)[0];
+    if(raak&&raak.a<15){openTaak(raak.t.i);return;}
+  }
+  for(const e of UIT[s.kamer]){const z=zone(s.kamer,e);if(x>=z[0]&&x<z[0]+z[2]&&y>=z[1]&&y<z[1]+z[3]){ga(e.to,e.d);return;}}
+});
+
+/* ================= spel ================= */
+function totaal(){
+  const t={p:0,e:0,w:0,a:0,c:7};
+  for(const i in s.keuzes){const o=TAKEN[i].opties[s.keuzes[i]];t.p+=o.p;t.e+=o.e||0;t.w+=o.w||0;t.a+=o.a||0;t.c+=o.c||0;}
+  t.c=Math.max(0,Math.min(10,t.c));return t;
+}
+function uitersten(){
+  const u={e:0,w:0,a:0,eMin:0,wMin:0,aMin:0};
+  TAKEN.forEach(t=>{["e","w","a"].forEach(m=>{const v=t.opties.map(o=>o[m]||0);u[m]+=Math.max(...v);});
+    const b=t.opties.find(o=>o.p===3);u.eMin+=b.e||0;u.wMin+=b.w||0;u.aMin+=b.a||0;});
+  return u;
+}
+const PIJL={l:"←",r:"→",u:"↑",d:"↓"};
+function render(){
+  const t=totaal(),dag=DAGEN[s.dag];
+  $("dagen").innerHTML=DAGEN.map((d,i)=>'<li class="'+(s.fase==="eind"||i<s.dag?"klaar":i===s.dag&&s.fase!=="intro"?"nu":"")+'"'+(i===s.dag?' aria-current="step"':"")+">"+d.k+"</li>").join("");
+  $("m-p").textContent=t.p;$("m-e").textContent=nl(t.e,0);$("m-w").textContent=nl(t.w,0);$("m-a").textContent=nl(t.a);
+  $("c-balk").style.width=(t.c*10)+"%";
+  $("c-woord").textContent=t.c>=6?"Behaaglijk":t.c>=4?"Frisjes":"Bibberen";
+  $("comfort").classList.toggle("laag",t.c<4);
+  $("kamernaam").textContent=KAMERS[s.kamer];
+  $("weerlabel").textContent=dag.n+", "+dag.t;
+
+  const doel=open();
+  $("nav").innerHTML=UIT[s.kamer].map((e,i)=>{
+    const tip=leidtNaar(s.kamer,e,doel),naam=KAMERS[e.to];
+    return '<button data-i="'+i+'"'+(tip?' class="tip"':"")+' aria-label="Naar '+naam.toLowerCase()+(tip?", daar wacht een klus":"")+'">'+(e.d==="r"?naam+" "+PIJL.r:PIJL[e.d]+" "+naam)+"</button>";
+  }).join("");
+  $("nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{const e=UIT[s.kamer][+b.dataset.i];ga(e.to,e.d);});
+
+  const lijst=takenVan(s.dag),p=$("paneel");
+  if(s.fase==="intro"){
+    p.innerHTML='<h2>Deze week ben jij de baas in huis</h2><p>Elke dag wachten er drie klussen, van thermostaat tot grijze bak. Loop door het huis via de deuren en de trap, en tik op de gele uitroeptekens. Hoe zuiniger je kiest, hoe meer blaadjes. Maar let op je comfort: wie de hele week zit te bibberen, verliest alsnog punten.</p><button class="knop" id="start">Begin op maandag</button>';
+    $("start").onclick=()=>{s.fase="spel";render();};
+  }else if(s.fase==="spel"){
+    const klaar=lijst.every(k=>gedaan(k.i));
+    p.innerHTML="<h2>"+dag.n+": drie klussen</h2>"+lijst.map(k=>{
+      const af=gedaan(k.i);
+      return '<button class="klus'+(af?" af":"")+'" data-i="'+k.i+'"><span class="tekst"><span class="waar">'+KAMERS[k.k]+'</span><span class="wat">'+k.titel+'</span></span><span class="stat">'+(af?blaadjes(TAKEN[k.i].opties[s.keuzes[k.i]].p):k.k===s.kamer?"Bekijk":"Ga erheen")+"</span></button>";
+    }).join("")+'<button class="knop" id="dagklaar"'+(klaar?"":" disabled")+">"+(s.dag===6?"Week afsluiten":"Dag afsluiten")+"</button>";
+    p.querySelectorAll(".klus").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,k=TAKEN[i].k;
+      if(k===s.kamer||gedaan(i))openTaak(i);else{ga(k,"r");cv.scrollIntoView({block:"nearest",behavior:"smooth"});}});
+    $("dagklaar").onclick=dagKlaar;
+  }else renderEind(p,t);
+}
+function openLaag(html){$("sheet").innerHTML=html;$("laag").hidden=false;$("sheet").scrollTop=0;$("sheet").focus();}
+function sluitLaag(){$("laag").hidden=true;}
+function openTaak(i){
+  const k=TAKEN[i];
+  if(gedaan(i)){toonUitslag(i);return;}
+  const v=VOLGORDE[(i*5+2)%6];
+  openLaag('<span class="waar">'+KAMERS[k.k]+'</span><h2 id="sh-titel">'+k.titel+"</h2><p>"+k.tekst+"</p>"+
+    v.map(j=>'<button class="optie" data-j="'+j+'">'+k.opties[j].t+"</button>").join("")+
+    '<button class="knop licht" id="later">Later beslissen</button>');
+  $("sheet").querySelectorAll(".optie").forEach(b=>b.onclick=()=>{s.keuzes[i]=+b.dataset.j;render();toonUitslag(i);});
+  $("later").onclick=sluitLaag;
+}
+function toonUitslag(i){
+  const k=TAKEN[i],j=s.keuzes[i],o=k.opties[j];
+  let oordeel=["Zonde","Kan zuiniger","Best aardig","Slimme keuze"][o.p],kl=o.p===3?"":o.p===2?"matig":"slecht";
+  if((o.c||0)<=-2){oordeel="Zuinig, maar niet leefbaar";kl="matig";}
+  const chips=[];
+  if(o.e)chips.push("+"+nl(o.e)+" kWh");
+  if(o.w)chips.push("+"+nl(o.w,0)+" L water");
+  if(o.a)chips.push("+"+nl(o.a)+" kg restafval");
+  if(o.c)chips.push("Comfort "+(o.c>0?"+":"−")+Math.abs(o.c));
+  const v=VOLGORDE[(i*5+2)%6];
+  openLaag('<span class="waar">'+KAMERS[k.k]+'</span><h2 id="sh-titel">'+k.titel+"</h2>"+
+    '<span class="oordeel '+kl+'">'+oordeel+" "+blaadjes(o.p)+"</span>"+
+    (chips.length?'<div class="chips">'+chips.map(c=>"<span>"+c+"</span>").join("")+"</div>":"")+
+    v.map(x=>{const best=k.opties[x].p===3,mijn=x===j;
+      return '<div class="optie'+(best?" beste":mijn?" gekozen":"")+'">'+k.opties[x].t+((best||mijn)?'<span class="tag">'+(mijn?"Jouw keuze":"")+(mijn&&best?", en de zuinigste":best?"De zuinigste keuze":"")+"</span>":"")+"</div>";}).join("")+
+    '<p class="uitleg">'+k.uitleg+'</p><button class="knop" id="verder">Verder</button>');
+  $("verder").onclick=sluitLaag;
+}
+function dagKlaar(){
+  const lijst=takenVan(s.dag),pt=lijst.reduce((n,k)=>n+TAKEN[k.i].opties[s.keuzes[k.i]].p,0);
+  const laatste=s.dag===6;
+  openLaag('<span class="waar">Dag '+(s.dag+1)+' van 7</span><h2 id="sh-titel">'+DAGEN[s.dag].n+" zit erop</h2>"+
+    "<p>Vandaag verdiend: <b>"+pt+" van de 9 blaadjes</b>. "+(pt===9?"Een perfecte dag.":pt>=6?"Netjes gedaan.":"Morgen kan het zuiniger.")+"</p>"+
+    (laatste?"<p>De week is voorbij. Tijd voor het eindrapport.</p>":"<p>Morgen: "+DAGEN[s.dag+1].t+".</p>")+
+    '<button class="knop" id="door">'+(laatste?"Bekijk je energielabel":"Naar "+DAGEN[s.dag+1].n.toLowerCase())+"</button>");
+  $("door").onclick=()=>{if(laatste)s.fase="eind";else s.dag++;sluitLaag();render();window.scrollTo({top:0,behavior:"smooth"});};
+}
+function renderEind(p,t){
+  const max=TAKEN.length*3,pct=t.p/max,u=uitersten();
+  let idx=[.9,.78,.64,.5,.36,.22].findIndex(x=>pct>=x);if(idx<0)idx=6;
+  const koud=t.c<4;if(koud)idx=Math.min(6,idx+1);
+  const tekst=["Dit huis is een voorbeeld voor de hele straat.","Heel zuinig. Nog een paar slimme keuzes en je zit op A.","Een nette middenmoter, met ruimte om te besparen.","Het kan een stuk zuiniger in dit huis.","Er lekt hier flink wat energie, water en afval weg.","De meterkast draait overuren.","De grijze bak puilt uit en de meter tolt."][idx];
+  p.innerHTML="<h2>Energielabel "+LABELS[idx][0]+" voor Huize Zuinig</h2><p>"+tekst+" Je haalde "+t.p+" van de "+max+" blaadjes."+(koud?" Wel een label lager, want het was de hele week bibberen in huis. Zuinig leven moet ook vol te houden zijn.":"")+"</p>"+
+    '<div class="label" role="img" aria-label="Energielabel '+LABELS[idx][0]+'">'+LABELS.map((l,i)=>'<div class="rij"><div class="staaf" style="background:'+l[1]+";width:"+(34+i*8)+'%">'+l[0]+"</div>"+(i===idx?'<div class="jij">Jouw huis</div>':"")+"</div>").join("")+"</div>"+
+    '<table class="tabel"><thead><tr><th>Deze week</th><th>Jij</th><th>Zuinigst</th><th>Verkwistend</th></tr></thead><tbody>'+
+    "<tr><td>Energie (kWh)</td><td><b>"+nl(t.e,0)+"</b></td><td>"+nl(u.eMin,0)+"</td><td>"+nl(u.e,0)+"</td></tr>"+
+    "<tr><td>Water (liter)</td><td><b>"+nl(t.w,0)+"</b></td><td>"+nl(u.wMin,0)+"</td><td>"+nl(u.w,0)+"</td></tr>"+
+    "<tr><td>Restafval (kg)</td><td><b>"+nl(t.a)+"</b></td><td>"+nl(u.aMin)+"</td><td>"+nl(u.a)+"</td></tr></tbody></table>"+
+    '<button class="knop" id="opnieuw">Speel de week opnieuw</button>';
+  $("opnieuw").onclick=()=>{s={fase:"spel",dag:0,kamer:"woon",keuzes:{}};render();window.scrollTo({top:0,behavior:"smooth"});};
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("laag").hidden)sluitLaag();});
+$("laag").addEventListener("click",e=>{if(e.target===$("laag"))sluitLaag();});
+
+function start(data){
+  if(data&&data.fase&&data.keuzes){s=data;if(!UIT[s.kamer])s.kamer="woon";}
+  render();teken(0);requestAnimationFrame(lus);
+}
+window.claude?.hot?.snapshot?.(()=>s);
+if(window.claude?.hot?.ready)window.claude.hot.ready(start);else start(window.claude?.hot?.data??{});
+</script>
+</body>
+</html>

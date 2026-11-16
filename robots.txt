@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://haaarold.github.io/Huize-Zuinig/sitemap.xml
